@@ -620,7 +620,7 @@ body{
 
     </div>
     <div class="sidebar-footer">
-      <div><span class="status-dot"></span><span class="status-text">Connected to Musafir API</span></div>
+      <div><span class="status-dot" style="background:#F59E0B"></span><span class="status-text">Connecting to Musafir API...</span></div>
     </div>
   </aside>
 
@@ -1037,6 +1037,36 @@ const DEST_DATA = {
   ES:{name:'Spain',interests:['beach','historical'],pop:0.75,price:680},
 };
 function buildDestMap() { return DEST_DATA; }
+
+// ── AUTO-WAKE SERVER ON PAGE LOAD ────────────
+(async function wakeServer() {
+  const statusDot  = document.querySelector('.status-dot');
+  const statusText = document.querySelector('.status-text');
+
+  // Set to "warming up" state immediately
+  if (statusDot)  { statusDot.style.background = '#F59E0B'; statusDot.style.animationDuration = '0.8s'; }
+  if (statusText) statusText.textContent = 'Connecting to Musafir API...';
+
+  const start = Date.now();
+  try {
+    const res = await fetch('https://musafir-visa-api.onrender.com/health', {
+      method: 'GET',
+      cache: 'no-cache'
+    });
+    if (res.ok) {
+      const ms = Date.now() - start;
+      if (statusDot)  { statusDot.style.background = '#34D399'; statusDot.style.animationDuration = '2s'; }
+      if (statusText) statusText.textContent = ms > 5000
+        ? 'Connected to Musafir API (warmed up)'
+        : 'Connected to Musafir API';
+    }
+  } catch(e) {
+    if (statusDot)  { statusDot.style.background = '#F87171'; statusDot.style.animation = 'none'; }
+    if (statusText) statusText.textContent = 'Server offline — retrying...';
+    // Retry once after 10 seconds
+    setTimeout(wakeServer, 10000);
+  }
+})();
 </script>
 </body>
 </html>
