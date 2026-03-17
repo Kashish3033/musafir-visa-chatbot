@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Musafir — AI Visa Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:        #070E1C;
+  --bg2:       #0C1528;
+  --bg3:       #111E35;
+  --bg4:       #162240;
+  --gold:      #E9A84C;
+  --gold2:     #F5C878;
+  --teal:      #2DD4BF;
+  --red:       #F87171;
+  --green:     #34D399;
+  --blue:      #60A5FA;
+  --text1:     #F0F4FF;
+  --text2:     #8B9EC5;
+  --text3:     #4A5C80;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.13);
+  --gold-glow: rgba(233,168,76,0.15);
+  --teal-glow: rgba(45,212,191,0.12);
+}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'Figtree',sans-serif;
+  background:var(--bg);
+  color:var(--text1);
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── SCROLLBARS ─────────────────────────────── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px}
+
+/* ── TOP NAV ────────────────────────────────── */
+.topnav{
+  height:56px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  position:relative;z-index:10;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+}
+.brand-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--gold),#C47A28);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+}
+.brand-name{
+  font-family:'Playfair Display',serif;
+  font-size:20px;font-weight:600;color:var(--text1);
+  letter-spacing:0.3px;
+}
+.brand-name span{color:var(--gold)}
+.nav-badge{
+  font-size:11px;font-weight:600;color:var(--gold);
+  background:var(--gold-glow);border:1px solid rgba(233,168,76,0.3);
+  padding:3px 10px;border-radius:20px;letter-spacing:0.5px;
+}
+
+/* ── MAIN LAYOUT ────────────────────────────── */
+.layout{
+  flex:1;display:flex;overflow:hidden;
+}
+
+/* ── SIDEBAR ────────────────────────────────── */
+.sidebar{
+  width:300px;flex-shrink:0;
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.sidebar-header{
+  padding:20px 20px 16px;
+  border-bottom:1px solid var(--border);
+}
+.sidebar-title{
+  font-size:11px;font-weight:600;color:var(--text3);
+  letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px;
+}
+.sidebar-sub{
+  font-size:13px;color:var(--text2);
+}
+.sidebar-body{
+  flex:1;overflow-y:auto;padding:16px 20px;
+  display:flex;flex-direction:column;gap:20px;
+}
+
+/* ── FORM GROUPS ─────────────────────────────── */
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{
+  font-size:11px;font-weight:600;color:var(--text3);
+  letter-spacing:0.8px;text-transform:uppercase;
+}
+.form-select,.form-input{
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  color:var(--text1);
+  font-family:'Figtree',sans-serif;
+  font-size:13px;
+  padding:9px 12px;
+  border-radius:8px;
+  outline:none;
+  transition:border-color 0.2s;
+  appearance:none;
+  -webkit-appearance:none;
+  cursor:pointer;
+  width:100%;
+}
+.form-select:focus,.form-input:focus{
+  border-color:rgba(233,168,76,0.5);
+  background:var(--bg4);
+}
+.select-wrap{position:relative}
+.select-wrap::after{
+  content:'▾';
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  color:var(--text3);font-size:11px;pointer-events:none;
+}
+
+/* ── INTEREST CHIPS ──────────────────────────── */
+.interest-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+  padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;
+  border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);cursor:pointer;transition:all 0.15s;
+  user-select:none;
+}
+.chip:hover{border-color:rgba(233,168,76,0.4);color:var(--text1)}
+.chip.active{
+  background:var(--gold-glow);
+  border-color:rgba(233,168,76,0.5);
+  color:var(--gold);
+}
+
+/* ── TOGGLE ──────────────────────────────────── */
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px;border-radius:8px;
+  background:var(--bg3);border:1px solid var(--border);
+}
+.toggle-label{font-size:13px;color:var(--text2)}
+.toggle{
+  width:38px;height:21px;background:var(--bg4);border-radius:11px;
+  position:relative;cursor:pointer;transition:background 0.2s;
+  flex-shrink:0;
+}
+.toggle.on{background:var(--gold)}
+.toggle::after{
+  content:'';position:absolute;width:15px;height:15px;
+  background:#fff;border-radius:50%;top:3px;left:3px;
+  transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3);
+}
+.toggle.on::after{transform:translateX(17px)}
+
+/* ── SIDEBAR FOOTER ─────────────────────────── */
+.sidebar-footer{
+  padding:16px 20px;
+  border-top:1px solid var(--border);
+}
+.status-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--green);
+  display:inline-block;margin-right:6px;
+  animation:pulse-green 2s infinite;
+}
+@keyframes pulse-green{0%,100%{opacity:1}50%{opacity:0.5}}
+.status-text{font-size:12px;color:var(--text2)}
+
+/* ── CHAT AREA ───────────────────────────────── */
+.chat-area{
+  flex:1;display:flex;flex-direction:column;
+  overflow:hidden;background:var(--bg);
+  position:relative;
+}
+/* subtle grid pattern on bg */
+.chat-area::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+}
+
+/* ── MESSAGES SCROLL AREA ────────────────────── */
+.messages{
+  flex:1;overflow-y:auto;
+  padding:28px 32px;
+  display:flex;flex-direction:column;gap:20px;
+  position:relative;z-index:1;
+}
+
+/* ── EMPTY STATE ─────────────────────────────── */
+.empty-state{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:32px;text-align:center;padding:40px;
+}
+.empty-icon{
+  width:72px;height:72px;border-radius:20px;
+  background:linear-gradient(135deg,rgba(233,168,76,0.2),rgba(233,168,76,0.05));
+  border:1px solid rgba(233,168,76,0.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;
+}
+.empty-title{
+  font-family:'Playfair Display',serif;
+  font-size:26px;font-weight:600;color:var(--text1);
+  line-height:1.3;
+}
+.empty-title span{color:var(--gold)}
+.empty-sub{font-size:14px;color:var(--text2);max-width:380px;line-height:1.6}
+.quick-questions{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:560px;
+}
+.qq{
+  padding:8px 16px;border-radius:20px;font-size:13px;font-weight:500;
+  border:1px solid var(--border2);background:var(--bg2);
+  color:var(--text2);cursor:pointer;transition:all 0.15s;
+  font-family:'Figtree',sans-serif;
+}
+.qq:hover{
+  border-color:rgba(233,168,76,0.4);
+  background:var(--bg3);color:var(--text1);
+  transform:translateY(-1px);
+}
+
+/* ── MESSAGE BUBBLES ─────────────────────────── */
+.msg{display:flex;gap:12px;animation:msgIn 0.3s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.msg.user{flex-direction:row-reverse}
+.msg-avatar{
+  width:34px;height:34px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+}
+.msg.bot .msg-avatar{background:linear-gradient(135deg,var(--gold),#C47A28);color:#fff}
+.msg.user .msg-avatar{background:var(--bg4);border:1px solid var(--border2);color:var(--text2)}
+.msg-content{max-width:72%;display:flex;flex-direction:column;gap:8px}
+.msg.user .msg-content{align-items:flex-end}
+
+.bubble{
+  padding:12px 16px;border-radius:14px;
+  font-size:14px;line-height:1.6;
+}
+.msg.user .bubble{
+  background:linear-gradient(135deg,var(--bg4),var(--bg3));
+  border:1px solid var(--border2);
+  border-bottom-right-radius:4px;
+  color:var(--text1);
+}
+.msg.bot .bubble{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-bottom-left-radius:4px;
+  color:var(--text1);
+}
+.msg-time{font-size:11px;color:var(--text3);padding:0 4px}
+
+/* ── TYPING INDICATOR ───────────────────────── */
+.typing{display:flex;gap:4px;padding:14px 16px;align-items:center}
+.dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--gold);opacity:0.4;
+  animation:typing 1.2s ease infinite;
+}
+.dot:nth-child(2){animation-delay:0.2s}
+.dot:nth-child(3){animation-delay:0.4s}
+@keyframes typing{0%,80%,100%{transform:scale(1);opacity:0.4}40%{transform:scale(1.2);opacity:1}}
+
+/* ── RESULT CARDS ────────────────────────────── */
+.result-block{display:flex;flex-direction:column;gap:10px;width:100%}
+
+/* eligibility badge */
+.elig-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;
+  letter-spacing:0.3px;
+}
+.elig-badge.eligible{background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:var(--green)}
+.elig-badge.not_eligible{background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:var(--red)}
+.elig-badge.unknown{background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.3);color:var(--blue)}
+
+/* boarding pass style sku card */
+.sku-cards{display:flex;flex-direction:column;gap:8px}
+.sku-card{
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:12px;overflow:hidden;
+  transition:border-color 0.2s;
+}
+.sku-card:hover{border-color:rgba(233,168,76,0.3)}
+.sku-card.express{border-left:3px solid var(--gold)}
+.sku-card.standard{border-left:3px solid var(--teal)}
+.sku-top{
+  padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.sku-speed{
+  display:flex;align-items:center;gap:8px;
+}
+.speed-badge{
+  padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;
+  letter-spacing:0.5px;text-transform:uppercase;
+}
+.speed-badge.express{background:rgba(233,168,76,0.15);color:var(--gold);border:1px solid rgba(233,168,76,0.3)}
+.speed-badge.standard{background:rgba(45,212,191,0.12);color:var(--teal);border:1px solid rgba(45,212,191,0.3)}
+.sku-price{
+  font-family:'Playfair Display',serif;
+  font-size:22px;font-weight:700;color:var(--gold);
+}
+.sku-price span{font-family:'Figtree',sans-serif;font-size:13px;font-weight:400;color:var(--text2)}
+.sku-divider{
+  height:1px;background:var(--border);margin:0 16px;
+  position:relative;
+}
+.sku-divider::before,.sku-divider::after{
+  content:'';position:absolute;width:12px;height:12px;border-radius:50%;
+  background:var(--bg);border:1px solid var(--border2);top:-6px;
+}
+.sku-divider::before{left:-22px}
+.sku-divider::after{right:-22px}
+.sku-bottom{
+  padding:10px 16px 12px;
+  display:flex;gap:20px;
+}
+.sku-stat{display:flex;flex-direction:column;gap:2px}
+.sku-stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px}
+.sku-stat-val{font-size:13px;font-weight:600;color:var(--text1)}
+
+.apply-btn{
+  display:inline-flex;align-items:center;gap:6px;margin-top:2px;
+  padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;
+  background:linear-gradient(135deg,var(--gold),#C47A28);
+  color:#1A0F00;border:none;cursor:pointer;
+  transition:opacity 0.15s,transform 0.1s;
+  font-family:'Figtree',sans-serif;
+  text-decoration:none;
+}
+.apply-btn:hover{opacity:0.9;transform:translateY(-1px)}
+
+/* documents */
+.docs-block{
+  background:var(--bg3);border:1px solid var(--border);border-radius:12px;
+  padding:14px 16px;
+}
+.docs-title{
+  font-size:11px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;
+}
+.doc-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:7px 0;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.doc-item:last-child{border-bottom:none}
+.doc-icon{
+  width:20px;height:20px;border-radius:5px;flex-shrink:0;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;font-size:11px;
+}
+.doc-icon.req{background:rgba(52,211,153,0.15);color:var(--green)}
+.doc-icon.opt{background:rgba(139,158,197,0.15);color:var(--text3)}
+.doc-name{font-size:13px;font-weight:500;color:var(--text1)}
+.doc-note{font-size:11px;color:var(--text3);margin-top:1px}
+.doc-opt-label{
+  font-size:10px;padding:2px 7px;border-radius:10px;
+  background:rgba(139,158,197,0.1);color:var(--text3);
+  border:1px solid var(--border);margin-left:auto;flex-shrink:0;
+}
+
+/* destination cards */
+.dest-grid{display:flex;flex-direction:column;gap:8px}
+.dest-card{
+  background:var(--bg3);border:1px solid var(--border);border-radius:12px;
+  padding:14px 16px;
+  display:flex;align-items:center;gap:14px;
+  transition:border-color 0.2s,background 0.2s;
+  cursor:default;
+}
+.dest-card:hover{border-color:rgba(233,168,76,0.25);background:var(--bg4)}
+.dest-flag{font-size:24px;line-height:1}
+.dest-info{flex:1;min-width:0}
+.dest-name{font-size:14px;font-weight:600;color:var(--text1)}
+.dest-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.dest-tag{
+  font-size:10px;padding:2px 7px;border-radius:10px;
+  background:rgba(45,212,191,0.08);border:1px solid rgba(45,212,191,0.15);
+  color:var(--teal);
+}
+.dest-right{text-align:right;flex-shrink:0}
+.dest-price{font-size:13px;font-weight:600;color:var(--gold)}
+.dest-pop{font-size:11px;color:var(--text3);margin-top:2px}
+.dest-visa-badge{
+  display:inline-block;margin-top:4px;font-size:10px;
+  padding:2px 8px;border-radius:10px;font-weight:600;
+}
+.dest-visa-badge.available{background:rgba(52,211,153,0.1);color:var(--green);border:1px solid rgba(52,211,153,0.2)}
+.dest-visa-badge.inquiry{background:rgba(139,158,197,0.1);color:var(--text3);border:1px solid var(--border)}
+
+/* rules trace (collapsible) */
+.trace-block{
+  background:rgba(0,0,0,0.2);border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;
+}
+.trace-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px;cursor:pointer;
+  font-size:11px;color:var(--text3);font-weight:600;
+  text-transform:uppercase;letter-spacing:0.6px;
+}
+.trace-header:hover{color:var(--text2)}
+.trace-header .chevron{transition:transform 0.2s;font-size:10px}
+.trace-header.open .chevron{transform:rotate(180deg)}
+.trace-body{display:none;padding:8px 12px;border-top:1px solid var(--border)}
+.trace-body.visible{display:block}
+.trace-rule{
+  font-family:'Figtree',sans-serif;
+  font-size:12px;color:var(--teal);
+  padding:2px 0;
+}
+
+/* ── INPUT BAR ───────────────────────────────── */
+.input-area{
+  padding:20px 32px 24px;
+  background:var(--bg);
+  border-top:1px solid var(--border);
+  position:relative;z-index:1;
+}
+.input-wrap{
+  display:flex;gap:10px;align-items:flex-end;
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:14px;
+  padding:4px 4px 4px 16px;
+  transition:border-color 0.2s;
+}
+.input-wrap:focus-within{border-color:rgba(233,168,76,0.4)}
+#msg-input{
+  flex:1;background:transparent;border:none;
+  color:var(--text1);font-family:'Figtree',sans-serif;
+  font-size:14px;resize:none;outline:none;
+  padding:10px 0;max-height:120px;line-height:1.5;
+  min-height:40px;
+}
+#msg-input::placeholder{color:var(--text3)}
+.send-btn{
+  width:40px;height:40px;border-radius:10px;
+  background:linear-gradient(135deg,var(--gold),#C47A28);
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:opacity 0.15s,transform 0.1s;
+  font-size:16px;
+}
+.send-btn:hover{opacity:0.9;transform:scale(1.05)}
+.send-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.input-hint{
+  font-size:11px;color:var(--text3);margin-top:8px;text-align:center;
+}
+
+/* ── MOBILE ──────────────────────────────────── */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .sidebar.mobile-open{
+    display:flex;position:fixed;inset:56px 0 0 0;z-index:50;width:100%;
+  }
+  .messages{padding:16px}
+  .input-area{padding:12px 16px 16px}
+  .msg-content{max-width:88%}
+  .topnav{padding:0 16px}
+  .mobile-ctx-btn{
+    display:flex;align-items:center;gap:6px;
+    padding:5px 12px;border-radius:8px;
+    background:var(--bg3);border:1px solid var(--border2);
+    color:var(--text2);font-size:12px;font-weight:600;
+    cursor:pointer;font-family:'Figtree',sans-serif;
+  }
+}
+@media(min-width:769px){
+  .mobile-ctx-btn{display:none}
+  .overlay{display:none!important}
+}
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:40;display:none;
+}
+.overlay.show{display:block}
+
+/* ── SECTION LABEL IN CHAT ───────────────────── */
+.section-label{
+  font-size:11px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:0.8px;
+  margin-bottom:6px;display:flex;align-items:center;gap:6px;
+}
+.section-label::after{
+  content:'';flex:1;height:1px;background:var(--border);
+}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="brand">
+    <div class="brand-icon">✈</div>
+    <div class="brand-name">Musa<span>fir</span></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <button class="mobile-ctx-btn" onclick="toggleSidebar()">⚙ Profile</button>
+    <div class="nav-badge">AI Visa Assistant</div>
+  </div>
+</nav>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- MAIN LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">Traveler Profile</div>
+      <div class="sidebar-sub">Your details shape visa answers</div>
+    </div>
+    <div class="sidebar-body">
+
+      <div class="form-group">
+        <label class="form-label">Nationality</label>
+        <div class="select-wrap">
+          <select class="form-select" id="nationality" onchange="updateCtx()">
+            <option value="IN">🇮🇳 Indian</option>
+            <option value="PK">🇵🇰 Pakistani</option>
+            <option value="PH">🇵🇭 Filipino</option>
+            <option value="NG">🇳🇬 Nigerian</option>
+            <option value="AE">🇦🇪 Emirati</option>
+            <option value="SA">🇸🇦 Saudi</option>
+            <option value="OTHER">🌐 Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Residency Country</label>
+        <div class="select-wrap">
+          <select class="form-select" id="residencyCountry" onchange="updateCtx()">
+            <option value="IN">🇮🇳 India</option>
+            <option value="AE">🇦🇪 UAE</option>
+            <option value="SA">🇸🇦 Saudi Arabia</option>
+            <option value="QA">🇶🇦 Qatar</option>
+            <option value="KW">🇰🇼 Kuwait</option>
+            <option value="BH">🇧🇭 Bahrain</option>
+            <option value="OM">🇴🇲 Oman</option>
+            <option value="PK">🇵🇰 Pakistan</option>
+            <option value="PH">🇵🇭 Philippines</option>
+            <option value="OTHER">🌐 Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Travel Purpose</label>
+        <div class="select-wrap">
+          <select class="form-select" id="travelPurpose" onchange="updateCtx()">
+            <option value="tourist">✈ Tourist</option>
+            <option value="student">🎓 Student</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Travel Group</label>
+        <div class="select-wrap">
+          <select class="form-select" id="travelGroup" onchange="updateCtx()">
+            <option value="solo">🧍 Solo</option>
+            <option value="couple">💑 Couple</option>
+            <option value="family">👨‍👩‍👧 Family</option>
+            <option value="friends">👥 Friends</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Interests</label>
+        <div class="interest-chips" id="interest-chips">
+          <div class="chip" data-val="city" onclick="toggleInterest(this)">🏙 City</div>
+          <div class="chip" data-val="beach" onclick="toggleInterest(this)">🏖 Beach</div>
+          <div class="chip" data-val="historical" onclick="toggleInterest(this)">🏛 Historical</div>
+          <div class="chip" data-val="nature" onclick="toggleInterest(this)">🌿 Nature</div>
+          <div class="chip" data-val="shopping" onclick="toggleInterest(this)">🛍 Shopping</div>
+          <div class="chip" data-val="nightlife" onclick="toggleInterest(this)">🌃 Nightlife</div>
+          <div class="chip" data-val="luxury" onclick="toggleInterest(this)">💎 Luxury</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Visa / Permit Held</label>
+        <div class="select-wrap">
+          <select class="form-select" id="hasVisa" onchange="updateCtx()">
+            <option value="">None</option>
+            <option value="SCHENGEN">🇪🇺 Schengen</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="toggle-row" onclick="toggleFamily()">
+        <span class="toggle-label">Staying with family</span>
+        <div class="toggle" id="family-toggle"></div>
+      </div>
+
+    </div>
+    <div class="sidebar-footer">
+      <div><span class="status-dot"></span><span class="status-text">Connected to Musafir API</span></div>
+    </div>
+  </aside>
+
+  <!-- CHAT AREA -->
+  <main class="chat-area">
+    <div class="messages" id="messages">
+      <!-- EMPTY STATE -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">✈</div>
+        <div>
+          <div class="empty-title">Your <span>AI Visa</span> Assistant</div>
+          <div class="empty-sub" style="margin-top:8px">Ask about visa eligibility, required documents, processing times, or get destination recommendations based on your interests.</div>
+        </div>
+        <div class="quick-questions">
+          <div class="qq" onclick="quickAsk('Am I eligible for UAE tourist visa?')">🇦🇪 UAE Tourist Visa</div>
+          <div class="qq" onclick="quickAsk('What documents do I need for Turkey?')">🇹🇷 Turkey Documents</div>
+          <div class="qq" onclick="quickAsk('Saudi Arabia visa requirements')">🇸🇦 Saudi Visa</div>
+          <div class="qq" onclick="quickAsk('Inspire me with destinations I can travel to')">✨ Inspire Me</div>
+          <div class="qq" onclick="quickAsk('Where can I travel next week with fast processing?')">⚡ Travel This Week</div>
+          <div class="qq" onclick="quickAsk('Cheapest visa options for me')">💰 Cheapest Options</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INPUT -->
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea id="msg-input" rows="1" placeholder="Ask about visas, destinations, documents..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+      <div class="input-hint">Set your traveler profile on the left for personalised answers</div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────
+const API = 'https://musafir-visa-api.onrender.com/vendor/chat';
+let stayingWithFamily = false;
+let interests = [];
+let isLoading = false;
+
+// ── COUNTRY FLAGS ─────────────────────────────
+const FLAGS = {AE:'🇦🇪',SA:'🇸🇦',TR:'🇹🇷',GE:'🇬🇪',AZ:'🇦🇿',TH:'🇹🇭',SG:'🇸🇬',ID:'🇮🇩',MY:'🇲🇾',LK:'🇱🇰',MV:'🇲🇻',JP:'🇯🇵',KR:'🇰🇷',IT:'🇮🇹',ES:'🇪🇸',IN:'🇮🇳',PK:'🇵🇰',PH:'🇵🇭',NG:'🇳🇬',QA:'🇶🇦',KW:'🇰🇼',BH:'🇧🇭',OM:'🇴🇲'};
+const DOC_NAMES = {
+  passport_copy:'Passport Copy',photograph:'Photograph',
+  flight_itinerary:'Flight Itinerary',hotel_booking:'Hotel Booking',
+  bank_statement:'Bank Statement',travel_insurance:'Travel Insurance',
+  invitation_letter:'Invitation Letter',university_admission_letter:'University Admission Letter',
+  education_certificate:'Education Certificate',employment_letter_v2:'Employment Letter (v2)'
+};
+
+// ── CONTEXT ───────────────────────────────────
+function getCtx() {
+  return {
+    nationality: document.getElementById('nationality').value,
+    residencyCountry: document.getElementById('residencyCountry').value,
+    travelPurpose: document.getElementById('travelPurpose').value,
+    travelGroup: document.getElementById('travelGroup').value,
+    interests: [...interests],
+    stayingWithFamily,
+    hasVisaOrPermit: document.getElementById('hasVisa').value ? [document.getElementById('hasVisa').value] : []
+  };
+}
+function updateCtx() {}
+function toggleFamily() {
+  stayingWithFamily = !stayingWithFamily;
+  const t = document.getElementById('family-toggle');
+  t.classList.toggle('on', stayingWithFamily);
+}
+function toggleInterest(el) {
+  const v = el.dataset.val;
+  if (interests.includes(v)) {
+    interests = interests.filter(i => i !== v);
+    el.classList.remove('active');
+  } else {
+    interests.push(v);
+    el.classList.add('active');
+  }
+}
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  const o = document.getElementById('overlay');
+  s.classList.toggle('mobile-open');
+  o.classList.toggle('show');
+}
+
+// ── AUTO RESIZE TEXTAREA ──────────────────────
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+function quickAsk(q) {
+  document.getElementById('msg-input').value = q;
+  sendMessage();
+}
+
+// ── TIME ─────────────────────────────────────
+function now() {
+  return new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ── REMOVE EMPTY STATE ─────────────────────────
+function removeEmpty() {
+  const e = document.getElementById('empty-state');
+  if (e) e.remove();
+}
+
+// ── APPEND MESSAGE ─────────────────────────────
+function appendUserMsg(text) {
+  removeEmpty();
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg user';
+  div.innerHTML = `
+    <div class="msg-avatar">👤</div>
+    <div class="msg-content">
+      <div class="bubble">${escHtml(text)}</div>
+      <div class="msg-time">${now()}</div>
+    </div>`;
+  msgs.appendChild(div);
+  scroll();
+}
+
+function appendTyping() {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typing-indicator';
+  div.innerHTML = `
+    <div class="msg-avatar">✈</div>
+    <div class="msg-content">
+      <div class="bubble"><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+    </div>`;
+  msgs.appendChild(div);
+  scroll();
+  return div;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-indicator');
+  if (t) t.remove();
+}
+
+function appendBotMsg(result) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+
+  const eligStatus = result.final && result.final.skuCodes && result.final.skuCodes.length > 0
+    ? (result.answerText && result.answerText.toLowerCase().includes('not eligible') ? 'not_eligible' : 'eligible')
+    : 'unknown';
+
+  let inner = `<div class="msg-avatar">✈</div><div class="msg-content" style="max-width:85%;width:100%">`;
+
+  // Eligibility badge for visa queries
+  const hasSkus = result.final && result.final.skuCodes && result.final.skuCodes.length > 0;
+  const hasDests = result.final && result.final.destinations && result.final.destinations.length > 0;
+  const isRec = result.final && result.final.destinations && result.final.destinations.length > 1;
+
+  if (!isRec && hasDests) {
+    const eligLabel = eligStatus === 'eligible' ? '✓ Eligible' : eligStatus === 'not_eligible' ? '✗ Not Eligible' : '? Unknown';
+    inner += `<div class="elig-badge ${eligStatus}">${eligLabel}</div>`;
+  }
+
+  // Answer bubble
+  inner += `<div class="bubble">${escHtml(result.answerText || 'No response received.')}</div>`;
+
+  const rb = document.createElement('div');
+  rb.className = 'result-block';
+
+  // VISA OPTION CARDS
+  if (hasSkus && !isRec && eligStatus === 'eligible') {
+    const skuSection = document.createElement('div');
+    skuSection.innerHTML = `<div class="section-label">Visa Options</div>`;
+    const cards = document.createElement('div');
+    cards.className = 'sku-cards';
+
+    // Build priced SKUs from trace + final
+    const skuMap = buildSkuMap();
+    result.final.skuCodes.forEach(code => {
+      const sku = skuMap[code];
+      if (!sku) return;
+      // Find price from answerText (we stored it in processedPrice)
+      const card = document.createElement('div');
+      card.className = `sku-card ${sku.speed}`;
+      const price = extractPrice(result.answerText, sku.speed) || sku.basePrice;
+      card.innerHTML = `
+        <div class="sku-top">
+          <div class="sku-speed">
+            <div class="speed-badge ${sku.speed}">${sku.speed === 'express' ? '⚡ Express' : '📋 Standard'}</div>
+            <span style="font-size:12px;color:var(--text3)">eVisa</span>
+          </div>
+          <div>
+            <div class="sku-price">AED ${price} <span>/ person</span></div>
+          </div>
+        </div>
+        <div class="sku-divider"></div>
+        <div class="sku-bottom">
+          <div class="sku-stat"><div class="sku-stat-label">Processing</div><div class="sku-stat-val">${sku.processingTimeDays} day${sku.processingTimeDays>1?'s':''}</div></div>
+          <div class="sku-stat"><div class="sku-stat-label">Validity</div><div class="sku-stat-val">${sku.validityDays} days</div></div>
+          <div class="sku-stat"><div class="sku-stat-label">Stay</div><div class="sku-stat-val">${sku.stayDays} days</div></div>
+          <div class="sku-stat" style="margin-left:auto">
+            <a class="apply-btn" href="${sku.ctaUrl}" target="_blank">Apply Now →</a>
+          </div>
+        </div>`;
+      cards.appendChild(card);
+    });
+    skuSection.appendChild(cards);
+    rb.appendChild(skuSection);
+  }
+
+  // DOCUMENTS
+  if (result.final && result.final.documents && result.final.documents.length > 0 && !isRec) {
+    const docSection = document.createElement('div');
+    docSection.innerHTML = `<div class="section-label">Required Documents</div>`;
+    const docsBlock = document.createElement('div');
+    docsBlock.className = 'docs-block';
+    docsBlock.innerHTML = `<div class="docs-title">Checklist</div>`;
+
+    const mandDocs = result.final.documents.filter(d => d.mandatory);
+    const optDocs  = result.final.documents.filter(d => !d.mandatory);
+
+    [...mandDocs, ...optDocs].forEach(d => {
+      const row = document.createElement('div');
+      row.className = 'doc-item';
+      row.innerHTML = `
+        <div class="doc-icon ${d.mandatory?'req':'opt'}">${d.mandatory?'✓':'○'}</div>
+        <div style="flex:1">
+          <div class="doc-name">${DOC_NAMES[d.docCode]||d.docCode}</div>
+          <div class="doc-note">${d.notes||''}</div>
+        </div>
+        ${!d.mandatory ? '<div class="doc-opt-label">Optional</div>' : ''}`;
+      docsBlock.appendChild(row);
+    });
+    docSection.appendChild(docsBlock);
+    rb.appendChild(docSection);
+  }
+
+  // DESTINATION RECOMMENDATIONS
+  if (isRec) {
+    const destSection = document.createElement('div');
+    destSection.innerHTML = `<div class="section-label">Destinations</div>`;
+    const grid = document.createElement('div');
+    grid.className = 'dest-grid';
+
+    // Build dest map
+    const destMap = buildDestMap();
+    result.final.destinations.slice(0, 10).forEach(code => {
+      const d = destMap[code];
+      if (!d) return;
+      const card = document.createElement('div');
+      card.className = 'dest-card';
+      const hasVisa = result.final.skuCodes && result.final.skuCodes.some(s => s.startsWith(code));
+      card.innerHTML = `
+        <div class="dest-flag">${FLAGS[code]||'🌍'}</div>
+        <div class="dest-info">
+          <div class="dest-name">${d.name}</div>
+          <div class="dest-tags">${d.interests.map(i=>`<span class="dest-tag">${i}</span>`).join('')}</div>
+        </div>
+        <div class="dest-right">
+          <div class="dest-price">from AED ${d.price}</div>
+          <div class="dest-pop">⭐ ${Math.round(d.pop*100)}% popularity</div>
+          <div class="dest-visa-badge ${hasVisa?'available':'inquiry'}">${hasVisa?'Visa Available':'Enquire'}</div>
+        </div>`;
+      grid.appendChild(card);
+    });
+    destSection.appendChild(grid);
+    rb.appendChild(destSection);
+  }
+
+  // TRACE (collapsible)
+  if (result.trace && result.trace.matchedRules && result.trace.matchedRules.length > 0) {
+    const traceDiv = document.createElement('div');
+    traceDiv.className = 'trace-block';
+    const rules = result.trace.matchedRules.map(r=>r.ruleId);
+    const adjs  = (result.trace.appliedAdjustments||[]).map(a=>`${a.ruleId} (${a.value>0?'+':'-'}AED ${Math.abs(a.value)})`);
+    const traceId = 'trace-' + Date.now();
+    traceDiv.innerHTML = `
+      <div class="trace-header" onclick="toggleTrace('${traceId}')">
+        <span>🔍 ${rules.length} rule${rules.length!==1?'s':''} applied</span>
+        <span class="chevron" id="chev-${traceId}">▾</span>
+      </div>
+      <div class="trace-body" id="${traceId}">
+        ${rules.map(r=>`<div class="trace-rule">→ ${r}</div>`).join('')}
+        ${adjs.map(a=>`<div class="trace-rule" style="color:var(--gold)">$ ${a}</div>`).join('')}
+      </div>`;
+    rb.appendChild(traceDiv);
+  }
+
+  inner += `</div>`;
+  div.innerHTML = inner;
+
+  // time
+  const timeDiv = document.createElement('div');
+  timeDiv.className = 'msg-time';
+  timeDiv.style.paddingLeft = '46px';
+  timeDiv.textContent = now() + (result.meta ? ` · ${result.meta.latencyMs}ms` : '');
+
+  const msgs = document.getElementById('messages');
+  msgs.appendChild(div);
+
+  // Insert result block after bubble
+  const content = div.querySelector('.msg-content');
+  if (rb.children.length > 0) content.appendChild(rb);
+  content.appendChild(timeDiv);
+
+  scroll();
+}
+
+function toggleTrace(id) {
+  const body = document.getElementById(id);
+  const chev = document.getElementById('chev-' + id);
+  const header = body.previousElementSibling;
+  body.classList.toggle('visible');
+  header.classList.toggle('open');
+}
+
+// ── SEND ─────────────────────────────────────
+async function sendMessage() {
+  if (isLoading) return;
+  const input = document.getElementById('msg-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('send-btn').disabled = true;
+  isLoading = true;
+
+  appendUserMsg(text);
+  const typingEl = appendTyping();
+
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ message: text, context: getCtx() })
+    });
+    const data = await res.json();
+    removeTyping();
+    appendBotMsg(data);
+  } catch(err) {
+    removeTyping();
+    appendBotMsg({
+      answerText: 'Connection error. The server may be waking up (Render free tier). Please wait 30 seconds and try again.',
+      final: { destinations:[], skuCodes:[], documents:[], processingTimeDays:0, minLeadTimeDays:0 },
+      trace: { matchedRules:[], appliedAdjustments:[] },
+      meta: { latencyMs: 0 }
+    });
+  } finally {
+    isLoading = false;
+    document.getElementById('send-btn').disabled = false;
+    input.focus();
+  }
+}
+
+// ── HELPERS ───────────────────────────────────
+function scroll() {
+  const msgs = document.getElementById('messages');
+  setTimeout(() => msgs.scrollTo({top: msgs.scrollHeight, behavior:'smooth'}), 50);
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function extractPrice(text, speed) {
+  // Try to parse price from answerText for a given speed
+  const patterns = speed === 'express'
+    ? [/Express[^A-Z]*AED\s*(\d+)/i, /express.*?(\d{3,4})/i]
+    : [/Standard[^A-Z]*AED\s*(\d+)/i, /standard.*?(\d{3,4})/i];
+  for (const p of patterns) {
+    const m = text.match(p);
+    if (m) return parseInt(m[1]);
+  }
+  return null;
+}
+
+const SKU_DATA = {
+  AE_TOUR_30D_SGL_STD_001:{speed:'standard',processingTimeDays:3,validityDays:30,stayDays:30,basePrice:299,ctaUrl:'https://musafir.com/visa/ae-tourist-single-standard'},
+  AE_TOUR_30D_SGL_EXP_001:{speed:'express',processingTimeDays:1,validityDays:30,stayDays:30,basePrice:339,ctaUrl:'https://musafir.com/visa/ae-tourist-single-express'},
+  AE_STUD_90D_SGL_STD_001:{speed:'standard',processingTimeDays:5,validityDays:180,stayDays:90,basePrice:499,ctaUrl:'https://musafir.com/visa/ae-student-standard'},
+  AE_STUD_90D_SGL_EXP_001:{speed:'express',processingTimeDays:3,validityDays:180,stayDays:90,basePrice:549,ctaUrl:'https://musafir.com/visa/ae-student-express'},
+  SA_TOUR_30D_SGL_STD_001:{speed:'standard',processingTimeDays:3,validityDays:30,stayDays:30,basePrice:309,ctaUrl:'https://musafir.com/visa/sa-tourist-single-standard'},
+  SA_TOUR_30D_SGL_EXP_001:{speed:'express',processingTimeDays:1,validityDays:30,stayDays:30,basePrice:349,ctaUrl:'https://musafir.com/visa/sa-tourist-single-express'},
+  SA_STUD_90D_SGL_STD_001:{speed:'standard',processingTimeDays:6,validityDays:180,stayDays:90,basePrice:514,ctaUrl:'https://musafir.com/visa/sa-student-standard'},
+  SA_STUD_90D_SGL_EXP_001:{speed:'express',processingTimeDays:4,validityDays:180,stayDays:90,basePrice:564,ctaUrl:'https://musafir.com/visa/sa-student-express'},
+  TR_TOUR_30D_SGL_STD_001:{speed:'standard',processingTimeDays:4,validityDays:30,stayDays:30,basePrice:319,ctaUrl:'https://musafir.com/visa/tr-tourist-single-standard'},
+  TR_TOUR_30D_SGL_EXP_001:{speed:'express',processingTimeDays:2,validityDays:30,stayDays:30,basePrice:359,ctaUrl:'https://musafir.com/visa/tr-tourist-single-express'},
+  TR_STUD_90D_SGL_STD_001:{speed:'standard',processingTimeDays:6,validityDays:180,stayDays:90,basePrice:524,ctaUrl:'https://musafir.com/visa/tr-student-standard'},
+  TR_STUD_90D_SGL_EXP_001:{speed:'express',processingTimeDays:4,validityDays:180,stayDays:90,basePrice:574,ctaUrl:'https://musafir.com/visa/tr-student-express'},
+};
+function buildSkuMap() { return SKU_DATA; }
+
+const DEST_DATA = {
+  AE:{name:'United Arab Emirates',interests:['city','beach','shopping'],pop:0.92,price:250},
+  SA:{name:'Saudi Arabia',interests:['historical','city','nature'],pop:0.76,price:320},
+  TR:{name:'Turkey',interests:['historical','city','beach'],pop:0.88,price:340},
+  GE:{name:'Georgia',interests:['nature','city'],pop:0.79,price:180},
+  AZ:{name:'Azerbaijan',interests:['city','nightlife'],pop:0.74,price:200},
+  TH:{name:'Thailand',interests:['beach','nightlife'],pop:0.90,price:260},
+  SG:{name:'Singapore',interests:['city','shopping'],pop:0.81,price:420},
+  ID:{name:'Indonesia',interests:['beach','nature'],pop:0.84,price:240},
+  MY:{name:'Malaysia',interests:['city','nature'],pop:0.77,price:230},
+  LK:{name:'Sri Lanka',interests:['beach','nature'],pop:0.68,price:170},
+  MV:{name:'Maldives',interests:['beach','luxury'],pop:0.73,price:520},
+  JP:{name:'Japan',interests:['city','historical'],pop:0.86,price:650},
+  KR:{name:'South Korea',interests:['city','historical'],pop:0.80,price:600},
+  IT:{name:'Italy',interests:['historical','city'],pop:0.78,price:700},
+  ES:{name:'Spain',interests:['beach','historical'],pop:0.75,price:680},
+};
+function buildDestMap() { return DEST_DATA; }
+</script>
+</body>
+</html>
