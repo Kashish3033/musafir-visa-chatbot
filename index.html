@@ -658,6 +658,7 @@ body{
 
 <script>
 // ── STATE ─────────────────────────────────────
+function getMsgs(){return document.getElementById('messages');}
 const API = 'https://musafir-visa-api.onrender.com/vendor/chat';
 let stayingWithFamily = false;
 let interests = [];
@@ -688,7 +689,7 @@ function getCtx() {
 function updateCtx() {}
 function toggleFamily() {
   stayingWithFamily = !stayingWithFamily;
-  const t = document.getElementById('family-toggle');
+  let t = document.getElementById('family-toggle');
   t.classList.toggle('on', stayingWithFamily);
 }
 function toggleInterest(el) {
@@ -735,8 +736,8 @@ function removeEmpty() {
 // ── APPEND MESSAGE ─────────────────────────────
 function appendUserMsg(text) {
   removeEmpty();
-  const msgs = document.getElementById('messages');
-  const div = document.createElement('div');
+  const msgsA = getMsgs();
+  let div = document.createElement('div');
   div.className = 'msg user';
   div.innerHTML = `
     <div class="msg-avatar">👤</div>
@@ -744,13 +745,13 @@ function appendUserMsg(text) {
       <div class="bubble">${escHtml(text)}</div>
       <div class="msg-time">${now()}</div>
     </div>`;
-  msgs.appendChild(div);
+  msgsA.appendChild(div);
   scroll();
 }
 
 function appendTyping() {
-  const msgs = document.getElementById('messages');
-  const div = document.createElement('div');
+  const msgsB = getMsgs();
+  let div = document.createElement('div');
   div.className = 'msg bot';
   div.id = 'typing-indicator';
   div.innerHTML = `
@@ -758,19 +759,18 @@ function appendTyping() {
     <div class="msg-content">
       <div class="bubble"><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
     </div>`;
-  msgs.appendChild(div);
+  msgsB.appendChild(div);
   scroll();
   return div;
 }
 
 function removeTyping() {
-  const t = document.getElementById('typing-indicator');
+  let t = document.getElementById('typing-indicator');
   if (t) t.remove();
 }
 
 function appendBotMsg(result) {
-  const msgs = document.getElementById('messages');
-  const div = document.createElement('div');
+  let div = document.createElement('div');
   div.className = 'msg bot';
 
   const eligStatus = result.final && result.final.skuCodes && result.final.skuCodes.length > 0
@@ -808,7 +808,7 @@ function appendBotMsg(result) {
       const sku = skuMap[code];
       if (!sku) return;
       // Find price from answerText (we stored it in processedPrice)
-      const card = document.createElement('div');
+      let card = document.createElement('div');
       card.className = `sku-card ${sku.speed}`;
       const price = extractPrice(result.answerText, sku.speed) || sku.basePrice;
       card.innerHTML = `
@@ -875,7 +875,7 @@ function appendBotMsg(result) {
     result.final.destinations.slice(0, 10).forEach(code => {
       const d = destMap[code];
       if (!d) return;
-      const card = document.createElement('div');
+      let card = document.createElement('div');
       card.className = 'dest-card';
       const hasVisa = result.final.skuCodes && result.final.skuCodes.some(s => s.startsWith(code));
       card.innerHTML = `
@@ -923,8 +923,8 @@ function appendBotMsg(result) {
   timeDiv.style.paddingLeft = '46px';
   timeDiv.textContent = now() + (result.meta ? ` · ${result.meta.latencyMs}ms` : '');
 
-  const msgs = document.getElementById('messages');
-  msgs.appendChild(div);
+  const msgsD = getMsgs();
+  msgsD.appendChild(div);
 
   // Insert result block after bubble
   const content = div.querySelector('.msg-content');
@@ -983,8 +983,8 @@ async function sendMessage() {
 
 // ── HELPERS ───────────────────────────────────
 function scroll() {
-  const msgs = document.getElementById('messages');
-  setTimeout(() => msgs.scrollTo({top: msgs.scrollHeight, behavior:'smooth'}), 50);
+  const msgsE = getMsgs();
+  setTimeout(() => msgsE.scrollTo({top: msgs.scrollHeight, behavior:'smooth'}), 50);
 }
 
 function escHtml(str) {
